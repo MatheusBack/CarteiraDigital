@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Wallet.Domain/Wallet.Domain.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Wallet.Domain.Tests/Wallet.Domain.Tests.csproj" />
+  </Folder>
+</Solution>
