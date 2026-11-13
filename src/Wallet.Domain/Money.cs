@@ -20,6 +20,9 @@ public readonly record struct Money : IComparable<Money>
 
     public bool IsZero => Cents == 0;
 
+    /// <summary>Valor em reais (ex.: 1234.56). Útil para exibição e contratos de API.</summary>
+    public decimal Reais => Cents / 100m;
+
     public static Money FromCents(long cents) =>
         cents < 0
             ? throw new DomainException($"Valor negativo não é permitido: {cents} centavos.")
@@ -64,5 +67,5 @@ public readonly record struct Money : IComparable<Money>
 
     /// <summary>Formato brasileiro, ex.: "R$ 1.234,56".</summary>
     public override string ToString() =>
-        "R$ " + (Cents / 100m).ToString("N2", PtBr);
+        "R$ " + Reais.ToString("N2", PtBr);
 }

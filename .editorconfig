@@ -398,3 +398,11 @@ dotnet_diagnostic.CA1716.severity = none
 dotnet_diagnostic.CA1707.severity = none
 # Testes não são consumidos por outras aplicações
 dotnet_diagnostic.CA1515.severity = none
+
+[src/**/Migrations/**.cs]
+# Migrations são geradas pelo EF Core: fora dos analisadores e do dotnet format
+generated_code = true
+
+[src/Wallet.Api/**.cs]
+# Tipos internos da API são instanciados por DI/reflexão (minimal APIs, IExceptionHandler)
+dotnet_diagnostic.CA1812.severity = none

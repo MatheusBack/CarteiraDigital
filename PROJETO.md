@@ -736,15 +736,15 @@ services:
 ## 14. Roadmap
 
 ### Fase 1 — Fundação
-- [ ] Solution, `Directory.Build.props` (nullable, analyzers, warnings como erro), `Directory.Packages.props`
-- [ ] Domínio (`Money`, `Account`, limites) com testes unitários
-- [ ] CI com build, formatação e testes unitários
+- [x] Solution, `Directory.Build.props` (nullable, analyzers, warnings como erro), `Directory.Packages.props`
+- [x] Domínio (`Money`, `Account`, limites) com testes unitários
+- [x] CI com build, formatação e testes unitários
 
 ### Fase 2 — API e integração
-- [ ] Minimal APIs + EF Core + migrations
-- [ ] `ApiFactory` com Testcontainers + Respawn
-- [ ] Idempotência + testes
-- [ ] Antifraude com Polly + WireMock
+- [x] Minimal APIs + EF Core + migrations
+- [x] `ApiFactory` com Testcontainers + Respawn
+- [x] Idempotência + testes
+- [x] Antifraude com Polly + WireMock
 
 ### Fase 3 — Testes avançados
 - [ ] Propriedades com FsCheck (conservação, não negativo, reconciliação)

@@ -12,6 +12,13 @@ public class MoneyTests
     public void FromReais_converts_to_cents(decimal reais, long expectedCents) =>
         Money.FromReais(reais).Cents.ShouldBe(expectedCents);
 
+    [Theory]
+    [InlineData(1050, 10.5)]
+    [InlineData(1, 0.01)]
+    [InlineData(0, 0)]
+    public void Reais_converts_back_from_cents(long cents, decimal expectedReais) =>
+        Money.FromCents(cents).Reais.ShouldBe(expectedReais);
+
     [Fact]
     public void FromReais_rejects_more_than_two_decimal_places() =>
         Should.Throw<DomainException>(() => Money.FromReais(0.001m));

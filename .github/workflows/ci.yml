@@ -16,6 +16,7 @@ env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   MIN_LINE_COVERAGE: 90
+  COVERAGE_ARGS: --coverage --coverage-output-format cobertura
 
 jobs:
   build-and-test:
@@ -29,8 +30,10 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Restaurar pacotes
-        run: dotnet restore
+      - name: Restaurar pacotes e ferramentas
+        run: |
+          dotnet restore
+          dotnet tool restore
 
       - name: Build (avisos são erros)
         run: dotnet build --no-restore -c Release
@@ -38,17 +41,32 @@ jobs:
       - name: Verificar formatação
         run: dotnet format --verify-no-changes --no-restore
 
-      - name: Testes com cobertura
+      - name: Testes unitários (domínio)
         run: >
-          dotnet test --no-build -c Release --
-          --coverage --coverage-output-format cobertura --coverage-output coverage.cobertura.xml
+          dotnet test --no-build -c Release --project tests/Wallet.Domain.Tests --
+          $COVERAGE_ARGS --coverage-output domain.cobertura.xml
+
+      # Postgres real em container (Testcontainers) + antifraude simulado (WireMock).
+      - name: Testes de integração (API + Postgres)
+        run: >
+          dotnet test --no-build -c Release --project tests/Wallet.Integration.Tests --
+          $COVERAGE_ARGS --coverage-output integration.cobertura.xml
+
+      - name: Relatório de cobertura (unitários + integração)
+        run: >
+          dotnet reportgenerator
+          -reports:"**/TestResults/*.cobertura.xml"
+          -targetdir:coverage
+          -reporttypes:"Cobertura;MarkdownSummaryGithub"
+          -filefilters:"-**/Migrations/**"
+          -assemblyfilters:"-*.Tests"
 
       - name: Cobertura mínima
         run: |
-          REPORT=$(find . -name coverage.cobertura.xml -not -path "*/obj/*" | head -1)
-          RATE=$(grep -m1 -oE 'line-rate="[0-9.]+"' "$REPORT" | grep -oE '[0-9.]+')
+          cat coverage/SummaryGithub.md >> "$GITHUB_STEP_SUMMARY"
+          RATE=$(grep -m1 -oE 'line-rate="[0-9.]+"' coverage/Cobertura.xml | grep -oE '[0-9.]+')
           PERCENT=$(awk "BEGIN { printf \"%.1f\", $RATE * 100 }")
-          echo "### Cobertura de linhas: ${PERCENT}% (mínimo ${MIN_LINE_COVERAGE}%)" >> "$GITHUB_STEP_SUMMARY"
+          echo "Cobertura de linhas: ${PERCENT}% (mínimo ${MIN_LINE_COVERAGE}%)"
           awk "BEGIN { exit !($PERCENT >= $MIN_LINE_COVERAGE) }" || {
             echo "::error::Cobertura ${PERCENT}% abaixo do mínimo de ${MIN_LINE_COVERAGE}%"
             exit 1
@@ -59,5 +77,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: "**/TestResults/**"
+          path: |
+            **/TestResults/**
+            coverage/
           if-no-files-found: ignore

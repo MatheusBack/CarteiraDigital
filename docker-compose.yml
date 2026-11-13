@@ -1,0 +1,25 @@
+# Dependências para rodar a API localmente:
+#   docker compose up -d
+#   dotnet run --project src/Wallet.Api     → http://localhost:5080/scalar
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: wallet
+      POSTGRES_USER: wallet
+      POSTGRES_PASSWORD: wallet   # apenas desenvolvimento local
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wallet -d wallet"]
+      interval: 5s
+      retries: 10
+
+  # Antifraude simulado: aprova até R$ 3.000, recusa acima disso e demora 3 s para R$ 1.777,00.
+  fraud-mock:
+    image: wiremock/wiremock:3.13.0
+    ports: ["8081:8080"]
+    volumes: ["./tests/wiremock:/home/wiremock:ro"]
+
+volumes:
+  pgdata:

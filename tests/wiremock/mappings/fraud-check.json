@@ -1,0 +1,43 @@
+{
+  "mappings": [
+    {
+      "name": "Valor acima de R$ 3.000: recusa",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPath": "/check",
+        "bodyPatterns": [{ "matchesJsonPath": "$[?(@.amountCents > 300000)]" }]
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "decision": "denied" }
+      }
+    },
+    {
+      "name": "Exatamente R$ 1.777,00: demora 3 s (simula timeout, transferência fica em análise)",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPath": "/check",
+        "bodyPatterns": [{ "matchesJsonPath": "$[?(@.amountCents == 177700)]" }]
+      },
+      "response": {
+        "status": 200,
+        "fixedDelayMilliseconds": 3000,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "decision": "approved" }
+      }
+    },
+    {
+      "name": "Padrão: aprova",
+      "priority": 10,
+      "request": { "method": "POST", "urlPath": "/check" },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "decision": "approved" }
+      }
+    }
+  ]
+}
